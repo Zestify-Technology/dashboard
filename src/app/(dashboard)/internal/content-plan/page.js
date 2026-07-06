@@ -9,29 +9,29 @@ import CenterModal from "@/components/modals/centeredmodal";
 
 
 
-const PRIORITY_OPTIONS = ["low", "medium", "high"];
-const STATUS_OPTIONS = ["open", "in_progress", "resolved"];
+const TYPE_OPTIONS = ["marketing", "introduce", "information"];
+const STATUS_OPTIONS = ["draft", "in progress", "done"];
 
-const PRIORITY_STYLES = {
-  low: "bg-white/[0.06] text-white/50",
-  medium: "bg-[#F5C445]/15 text-[#F5C445]",
-  high: "bg-red-500/15 text-red-300",
+const STATUS_STYLE = {
+  draft: "bg-white/[0.06] text-white/50",
+  "in progress" : "bg-[#F5C445]/15 text-[#F5C445]",
+  done: "bg-red-500/15 text-red-300",
 };
 
-const STATUS_STYLES = {
-  open: "bg-[#7c8cfa]/15 text-[#a3b0ff]",
-  in_progress: "bg-[#F5C445]/15 text-[#F5C445]",
-  resolved: "bg-emerald-500/15 text-emerald-300",
+const TYPE_STYLE = {
+  marketing: "bg-[#7c8cfa]/15 text-[#a3b0ff]",
+  introduce: "bg-[#F5C445]/15 text-[#F5C445]",
+  information: "bg-emerald-500/15 text-emerald-300",
 };
 
 const emptyForm = () => ({
-  problem: "",
-  detail: "",
-  priority: "low",
-  status: "open",
+  topik: "",
+  penjelasan: "",
+  status: "draft",
+  type: "marketing",
 });
 
-export default function ProblemAngkatiga() {
+export default function ContentPlanPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -53,7 +53,7 @@ export default function ProblemAngkatiga() {
   async function fetchRows() {
     try {
       setFetching(true);
-      const records = await pb.collection("zxa_problem").getFullList({
+      const records = await pb.collection("zxa_content_plan").getFullList({
         sort: "-created",
         requestKey: null,
       });
@@ -82,10 +82,10 @@ export default function ProblemAngkatiga() {
     setModalMode("edit");
     setEditingId(row.id);
     setForm({
-      problem: row.problem,
-      detail: row.detail,
-      priority: row.priority,
+      topik: row.topik,
+      penjelasan: row.penjelasan,
       status: row.status,
+      type: row.type,
     });
     setIsModalOpen(true);
   }
@@ -112,9 +112,9 @@ export default function ProblemAngkatiga() {
       setLoading(true);
 
       if (modalMode === "add") {
-        await pb.collection("zxa_problem").create(form);
+        await pb.collection("zxa_content_plan").create(form);
       } else {
-        await pb.collection("zxa_problem").update(editingId, form);
+        await pb.collection("zxa_content_plan").update(editingId, form);
       }
 
       // Refetch instead of manually pushing into state, so the table
@@ -160,10 +160,9 @@ export default function ProblemAngkatiga() {
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-white/[0.08] text-left text-xs uppercase tracking-wide text-white/35">
-                <th className="px-4 py-3 font-medium">Problem</th>
-                <th className="px-3 py-3 font-medium">Detail</th>
-                <th className="px-3 py-3 font-medium">Priority</th>
+                <th className="px-4 py-3 font-medium">Topik</th>
                 <th className="px-3 py-3 font-medium">Status</th>
+                <th className="px-3 py-3 font-medium">Type</th>
                 <th className="w-20 px-3 py-3 text-right font-medium">
                   Actions
                 </th>
@@ -188,25 +187,22 @@ export default function ProblemAngkatiga() {
                     className="group border-b border-white/[0.05] last:border-0 hover:bg-white/[0.02]"
                   >
                     <td className="px-4 py-2.5 text-white whitespace-nowrap">
-                      {row.problem || (
+                      {row.topik || (
                         <span className="text-white/25">Untitled</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-white/70 max-w-[240px] truncate">
-                      {row.detail || <span className="text-white/25">—</span>}
-                    </td>
                     <td className="px-3 py-2.5 whitespace-nowrap">
                       <span
-                        className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium capitalize ${PRIORITY_STYLES[row.priority]}`}
+                        className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium capitalize ${STATUS_STYLE[row.status]}`}
                       >
-                        {row.priority}
+                        {row.status?.replace("_", " ")}
                       </span>
                     </td>
                     <td className="px-3 py-2.5 whitespace-nowrap">
                       <span
-                        className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[row.status]}`}
+                        className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium capitalize ${TYPE_OPTIONS[row.type]}`}
                       >
-                        {row.status?.replace("_", " ")}
+                        {row.type?.replace("_", " ")}
                       </span>
                     </td>
                     <td className="px-3 py-2.5">
@@ -261,9 +257,9 @@ export default function ProblemAngkatiga() {
           <FormField label="Problem">
             <input
               type="text"
-              name="problem"
+              name="topik"
               autoFocus
-              value={form.problem}
+              value={form.topik}
               onChange={handleChange}
               placeholder="e.g. Behind the scenes reel"
               className="w-full rounded-lg border border-white/[0.08] bg-white/[0.02] px-3.5 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition focus:border-[#7c8cfa]/50 focus:ring-2 focus:ring-[#7c8cfa]/20"
@@ -272,22 +268,22 @@ export default function ProblemAngkatiga() {
 
           <FormField label="Detail">
             <textarea
-              name="detail"
-              value={form.detail}
+              name="penjelasan"
+              value={form.penjelasan}
               onChange={handleChange}
               placeholder="e.g. Behind the scenes reel"
               className="w-full rounded-lg border border-white/[0.08] bg-white/[0.02] px-3.5 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition focus:border-[#7c8cfa]/50 focus:ring-2 focus:ring-[#7c8cfa]/20"
             />
           </FormField>
 
-          <FormField label="Priority">
+          <FormField label="status">
             <select
-              name="priority"
-              value={form.priority}
+              name="status"
+              value={form.status}
               onChange={handleChange}
               className="w-full rounded-lg border border-white/[0.08] bg-[#121214] px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-[#7c8cfa]/50 focus:ring-2 focus:ring-[#7c8cfa]/20 appearance-none cursor-pointer"
             >
-              {PRIORITY_OPTIONS.map((opt) => (
+              {STATUS_OPTIONS.map((opt) => (
                 <option
                   key={opt}
                   value={opt}
@@ -299,14 +295,14 @@ export default function ProblemAngkatiga() {
             </select>
           </FormField>
 
-          <FormField label="Status">
+          <FormField label="type">
             <select
-              name="status"
-              value={form.status}
+              name="type"
+              value={form.type}
               onChange={handleChange}
               className="w-full rounded-lg border border-white/[0.08] bg-[#121214] px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-[#7c8cfa]/50 focus:ring-2 focus:ring-[#7c8cfa]/20 appearance-none cursor-pointer"
             >
-              {STATUS_OPTIONS.map((opt) => (
+              {TYPE_OPTIONS.map((opt) => (
                 <option
                   key={opt}
                   value={opt}
@@ -339,25 +335,25 @@ export default function ProblemAngkatiga() {
           <div className="flex h-full flex-col justify-between space-y-6">
             {/* Konten Atas: otomatis scrollable jika teks terlalu panjang */}
             <div className="flex-1 space-y-5 overflow-y-auto pr-1">
-              <DetailField label="Problem">
+              <DetailField label="Topik">
                 <p className="text-base font-medium text-white break-words">
-                  {detailRow.problem || (
+                  {detailRow.topik || (
                     <span className="text-white/25">Untitled</span>
                   )}
                 </p>
               </DetailField>
 
               <div className="grid grid-cols-2 gap-4">
-                <DetailField label="Priority">
+                <DetailField label="Status">
                   <span
-                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize ${PRIORITY_STYLES[detailRow.priority]}`}
+                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize ${STATUS_STYLE[detailRow.status]}`}
                   >
-                    {detailRow.priority}
+                    {detailRow.type}
                   </span>
                 </DetailField>
                 <DetailField label="Status">
                   <span
-                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[detailRow.status]}`}
+                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize ${TYPE_OPTIONS[detailRow.type]}`}
                   >
                     {detailRow.status?.replace("_", " ")}
                   </span>
@@ -367,7 +363,7 @@ export default function ProblemAngkatiga() {
               <DetailField label="Detail">
                 {/* break-words mencegah teks panjang seperti URL merusak layout */}
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70 break-words">
-                  {detailRow.detail || <span className="text-white/25">—</span>}
+                  {detailRow.penjelasan || <span className="text-white/25">—</span>}
                 </p>
               </DetailField>
 

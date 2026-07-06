@@ -45,8 +45,8 @@ export default function LoginPage() {
       const userRole = userRecord.role;
 
       // Fixed route typo from "/dashborad/..." to "/dashboard/..."
-      if (userRole === "admin angkatiga") {
-        router.push("/admin-angkatiga");
+      if (userRole === "Zestify") {
+        router.push("/internal");
       } else if (userRole === "angkatiga") {
         router.push('/angkatiga');
       } else {
